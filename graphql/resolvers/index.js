@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const Event = require("../../models/event");
 const User = require("../../models/user");
+const Booking = require("../../models/booking");
 
 const user = async userId => {
   try {
@@ -47,7 +48,21 @@ module.exports = {
       throw err;
     }
   },
-
+  bookings: async argas => {
+    try {
+      const bookings = await Booking.find();
+      return bookings.map(booking => {
+        return {
+          ...booking._doc,
+          _id: booking._doc._id.toString(),
+          createdAt: new Date(booking._doc.createdAt).toISOString,
+          updatedAt: new Date(booking._doc.updatedAt).toISOString
+        };
+      });
+    } catch (err) {
+      throw err;
+    }
+  },
   createEvent: args => {
     const event = new Event({
       title: args.eventInput.title,
@@ -98,6 +113,30 @@ module.exports = {
       return {
         _id: result._doc._id.toString(),
         email: result._doc.email
+      };
+    } catch (err) {
+      throw err;
+    }
+  },
+  bookEvent: async args => {
+    try {
+      const existingEvent = await Event.findOne({
+        _id: args.eventId
+      });
+      if (existingEvent) {
+        throw new Error("User exists");
+      }
+      const booking = new Booking({
+        user: "5c4cb247c8723883b891dee3",
+        password: existingEvent
+      });
+      const result = await booking.save();
+      const result = user.save();
+      return {
+        ...result._doc,
+        _id: result._doc._id.toString(),
+        createdAt: new Date(result._doc.createdAt).toISOString,
+        updatedAt: new Date(result._doc.updatedAt).toISOString
       };
     } catch (err) {
       throw err;
