@@ -1,5 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
 const graphqlHttp = require("express-graphql");
 const { buildSchema } = require("graphql");
 
@@ -62,4 +63,9 @@ app.use(
   })
 );
 
-app.listen(3000);
+mongoose
+  .connect("mongodb://localhost:27017")
+  .then(() => {
+    app.listen(3000);
+  })
+  .catch(err => console.log(er));
