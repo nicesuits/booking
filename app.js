@@ -9,6 +9,36 @@ const app = express();
 const Event = require("./models/event");
 const User = require("./models/user");
 
+const user = userId => {
+  return User.findById(userId)
+    .then(user => {
+      return {
+        _id: user._doc._id.toString(),
+        email: user._doc.email,
+        createdEvents: events.bind(this, user._doc.createdEvents)
+      };
+    })
+    .catch(err => {
+      throw err;
+    });
+};
+
+const events = eventIds => {
+  return Event.find({ _id: { $in: eventIds } })
+    .then(events => {
+      return events.map(event => {
+        return {
+          ...event._doc,
+          _id: event._doc._id.toString(),
+          createdBy: user.bind(this, event._doc.createdBy)
+        };
+      });
+    })
+    .catch(err => {
+      throw err;
+    });
+};
+
 app.use(bodyParser.json());
 
 app.use(
@@ -21,6 +51,7 @@ app.use(
         description: String!
         price: Float!
         date: String!
+        createdBy: User!
       }
 
       input EventInput {
@@ -34,6 +65,7 @@ app.use(
         _id: ID!
         email: String!
         password: String
+        createdEvents: [Event!]
       }
 
       input UserInput {
@@ -60,7 +92,11 @@ app.use(
         return Event.find()
           .then(events => {
             return events.map(event => {
-              return { ...event._doc, _id: event._doc._id.toString() };
+              return {
+                ...event._doc,
+                _id: event._doc._id.toString(),
+                createdBy: user.bind(this, event._doc.createdBy)
+              };
             });
           })
           .catch(err => {
@@ -74,13 +110,17 @@ app.use(
           description: args.eventInput.description,
           price: parseFloat(args.eventInput.price),
           date: new Date(args.eventInput.date),
-          createdBy: "5c4bf642aafc677d0b4e4b76"
+          createdBy: "5c4cb247c8723883b891dee3"
         });
         let createdEvent;
         return event
           .save()
           .then(result => {
-            createdEvent = { ...result._doc, _id: result._doc._id.toString() };
+            createdEvent = {
+              ...result._doc,
+              _id: result._doc._id.toString(),
+              createdBy: user.bind(this, result._doc.createdBy)
+            };
             return User.findById(result._doc.createdBy);
           })
           .then(user => {
