@@ -2,53 +2,50 @@ const bcrypt = require("bcryptjs");
 const Event = require("../../models/event");
 const User = require("../../models/user");
 
-const user = userId => {
-  return User.findById(userId)
-    .then(user => {
-      return {
-        _id: user._doc._id.toString(),
-        email: user._doc.email,
-        createdEvents: events.bind(this, user._doc.createdEvents)
-      };
-    })
-    .catch(err => {
-      throw err;
-    });
+const user = async userId => {
+  try {
+    const user = await User.findById(userId);
+    return {
+      _id: user._doc._id.toString(),
+      email: user._doc.email,
+      createdEvents: events.bind(this, user._doc.createdEvents)
+    };
+  } catch (err) {
+    throw err;
+  }
 };
 
-const events = eventIds => {
-  return Event.find({ _id: { $in: eventIds } })
-    .then(events => {
-      return events.map(event => {
-        return {
-          ...event._doc,
-          _id: event._doc._id.toString(),
-          date: new Date(event._doc.date).toISOString(),
-          createdBy: user.bind(this, event._doc.createdBy)
-        };
-      });
-    })
-    .catch(err => {
-      throw err;
+const events = async eventIds => {
+  try {
+    const events = await Event.find({ _id: { $in: eventIds } });
+    return events.map(event => {
+      return {
+        ...event._doc,
+        _id: event._doc._id.toString(),
+        date: new Date(event._doc.date).toISOString(),
+        createdBy: user.bind(this, event._doc.createdBy)
+      };
     });
+  } catch (err) {
+    throw err;
+  }
 };
 
 module.exports = {
-  events: () => {
-    return Event.find()
-      .then(events => {
-        return events.map(event => {
-          return {
-            ...event._doc,
-            date: new Date(event._doc.date).toISOString(),
-            createdBy: user.bind(this, event._doc.createdBy),
-            _id: event._doc._id.toString()
-          };
-        });
-      })
-      .catch(err => {
-        throw err;
+  events: async () => {
+    try {
+      const events = await Event.find();
+      return events.map(event => {
+        return {
+          ...event._doc,
+          date: new Date(event._doc.date).toISOString(),
+          createdBy: user.bind(this, event._doc.createdBy),
+          _id: event._doc._id.toString()
+        };
       });
+    } catch (err) {
+      throw err;
+    }
   },
 
   createEvent: args => {
@@ -86,29 +83,24 @@ module.exports = {
         throw err;
       });
   },
-  createUser: args => {
-    return User.findOne({ email: args.userInput.email })
-      .then(user => {
-        if (user) {
-          throw new Error("User exists");
-        }
-        return bcrypt.hash(args.userInput.password, 12);
-      })
-      .then(hashedPassword => {
-        const user = new User({
-          email: args.userInput.email,
-          password: hashedPassword
-        });
-        return user.save();
-      })
-      .then(result => {
-        return {
-          _id: result._doc._id.toString(),
-          email: result._doc.email
-        };
-      })
-      .catch(err => {
-        throw err;
+  createUser: async args => {
+    try {
+      const existingUser = await User.findOne({ email: args.userInput.email });
+      if (existingUser) {
+        throw new Error("User exists");
+      }
+      const hashedPassword = await bcrypt.hash(args.userInput.password, 12);
+      const user = new User({
+        email: args.userInput.email,
+        password: hashedPassword
       });
+      const result = user.save();
+      return {
+        _id: result._doc._id.toString(),
+        email: result._doc.email
+      };
+    } catch (err) {
+      throw err;
+    }
   }
 };
