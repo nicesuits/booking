@@ -6,18 +6,24 @@ import AuthPage from "./pages/Auth";
 import BookingPage from "./pages/Booking";
 import EventPage from "./pages/Event";
 import UserPage from "./pages/User";
+import MainNavigation from "./components/Navigation/mainNavigation";
 
 class App extends Component {
   render() {
     return (
       <BrowserRouter>
-        <Switch>
-          <Redirect from="/" to="auth" exact />
-          <Route path="/auth" component={AuthPage} />
-          <Route path="/bookings" component={BookingPage} />
-          <Route path="/events" component={EventPage} />
-          <Route path="/user" component={UserPage} />
-        </Switch>
+        <React.Fragment>
+          <MainNavigation />
+          <main className="main-content">
+            <Switch>
+              <Redirect from="/" to="auth" exact />
+              <Route path="/auth" component={AuthPage} />
+              <Route path="/bookings" component={BookingPage} />
+              <Route path="/events" component={EventPage} />
+              <Route path="/user" component={UserPage} />
+            </Switch>
+          </main>
+        </React.Fragment>
       </BrowserRouter>
     );
   }
