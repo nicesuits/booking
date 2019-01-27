@@ -14,20 +14,21 @@ module.exports = {
       throw err;
     }
   },
-  createEvent: args => {
+  createEvent: (args, req) => {
+    if (!req.isAuth) throw new Error("[ERROR]: Unauthenticated");
     const event = new Event({
       title: args.eventInput.title,
       description: args.eventInput.description,
       price: parseFloat(args.eventInput.price),
       date: dateToString(args.eventInput.date),
-      createdBy: "5c4cb247c8723883b891dee3"
+      createdBy: req.userId
     });
     let createdEvent;
     return event
       .save()
       .then(result => {
         createdEvent = transformEvent(result);
-        return User.findById(result._doc.createdBy);
+        return User.findById(req.userId);
       })
       .then(user => {
         if (!user) {

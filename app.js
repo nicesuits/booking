@@ -6,8 +6,10 @@ const graphqlHttp = require("express-graphql");
 const app = express();
 const graphQLSchema = require("./graphql/schema");
 const graphQLResolvers = require("./graphql/resolvers");
+const isAuth = require("./middleware/auth");
 
 app.use(bodyParser.json());
+app.use(isAuth);
 
 app.use(
   "/",
