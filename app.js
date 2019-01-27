@@ -23,6 +23,6 @@ app.use(
 mongoose
   .connect("mongodb://localhost:27017/events")
   .then(() => {
-    app.listen(3000);
+    app.listen(3001);
   })
-  .catch(err => console.log(er));
+  .catch(err => console.log(err));
