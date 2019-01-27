@@ -2,12 +2,13 @@ const bcrypt = require("bcryptjs");
 const Event = require("../../models/event");
 const User = require("../../models/user");
 const Booking = require("../../models/booking");
+const { dateToString } = require("../../helpers/date");
 
 const transformEvent = event => {
   return {
     ...event._doc,
     _id: event._doc._id.toString(),
-    date: new Date(event._doc.date).toISOString(),
+    date: dateToString(event._doc.date),
     createdBy: user.bind(this, event._doc.createdBy)
   };
 };
@@ -18,8 +19,8 @@ const transformBook = result => {
     _id: result._doc._id.toString(),
     user: user.bind(this, booking._doc.user),
     event: singleEvent.bind(this, booking._doc.event),
-    createdAt: new Date(result._doc.createdAt).toISOString,
-    updatedAt: new Date(result._doc.updatedAt).toISOString
+    createdAt: dateToString(result._doc.createdAt),
+    updatedAt: dateToString(result._doc.updatedAt)
   };
 };
 
@@ -82,7 +83,7 @@ module.exports = {
       title: args.eventInput.title,
       description: args.eventInput.description,
       price: parseFloat(args.eventInput.price),
-      date: new Date(args.eventInput.date),
+      date: dateToString(args.eventInput.date),
       createdBy: "5c4cb247c8723883b891dee3"
     });
     let createdEvent;
