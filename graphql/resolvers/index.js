@@ -32,6 +32,20 @@ const events = async eventIds => {
   }
 };
 
+const singleEvent = async eventId => {
+  try {
+    const event = await Event.findById(eventId);
+    return {
+      ...event._doc,
+      _id: event._doc._id.toString(),
+      date: new Date(event._doc.date).toISOString(),
+      createdBy: user.bind(this, event._doc.createdBy)
+    };
+  } catch (err) {
+    throw err;
+  }
+};
+
 module.exports = {
   events: async () => {
     try {
@@ -55,6 +69,8 @@ module.exports = {
         return {
           ...booking._doc,
           _id: booking._doc._id.toString(),
+          user: user.bind(this, booking._doc.user),
+          event: singleEvent.bind(this, booking._doc.event),
           createdAt: new Date(booking._doc.createdAt).toISOString,
           updatedAt: new Date(booking._doc.updatedAt).toISOString
         };
@@ -131,13 +147,30 @@ module.exports = {
         password: existingEvent
       });
       const result = await booking.save();
-      const result = user.save();
       return {
         ...result._doc,
         _id: result._doc._id.toString(),
+        user: user.bind(this, booking._doc.user),
+        event: singleEvent.bind(this, booking._doc.event),
         createdAt: new Date(result._doc.createdAt).toISOString,
         updatedAt: new Date(result._doc.updatedAt).toISOString
       };
+    } catch (err) {
+      throw err;
+    }
+  },
+  cancelEvent: async args => {
+    try {
+      const booking = await Booking.findById({ _id: args.bookingId }).populate(
+        "event"
+      );
+      const event = {
+        ...booking.event._doc,
+        _id: booking._doc._id.toString(),
+        createdBy: user.bind(this, event._doc.createdBy)
+      };
+      Booking.deleteOne({ _id: args.bookingId });
+      return event;
     } catch (err) {
       throw err;
     }
