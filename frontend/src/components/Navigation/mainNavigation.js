@@ -7,7 +7,7 @@ const mainNavigation = props => (
     <div className="main-navigation__logo">
       <h1>Booking Events App</h1>
     </div>
-    <navbar className="main-navigation__items">
+    <div className="main-navigation__items">
       <ul>
         <li>
           <NavLink to="/auth">Sign In</NavLink>
@@ -19,7 +19,7 @@ const mainNavigation = props => (
           <NavLink to="/bookings">Events</NavLink>
         </li>
       </ul>
-    </navbar>
+    </div>
   </header>
 );
 
