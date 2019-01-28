@@ -54,7 +54,15 @@ class AuthPage extends Component {
           throw new Error("Failed request");
         return result.json();
       })
-      .then(responseData => console.log(responseData))
+      .then(responseData => {
+        if (responseData.data.login.token) {
+          this.context.login(
+            responseData.data.login.userId,
+            responseData.data.login.token,
+            responseData.data.login.tokenExpiration
+          );
+        }
+      })
       .catch(err => console.log(err));
   };
 
